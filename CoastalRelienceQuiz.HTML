@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coastal Resilience Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Tailwind slate-50 */
+            color: #1e293b; /* Tailwind slate-800 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .quiz-container {
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* Tailwind rounded-lg */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2.5rem; /* Tailwind p-10 */
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 2.25rem; /* Tailwind text-3xl */
+            font-weight: 700; /* Tailwind font-bold */
+            color: #0ea5e9; /* Tailwind sky-500 */
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #0ea5e9;
+            padding-bottom: 0.75rem;
+            display: flex; /* Added flex to align logo and text */
+            align-items: center; /* Vertically align items */
+            justify-content: center; /* Center content */
+        }
+        .quiz-logo { /* New class for the quiz logo */
+            max-width: 200px; /* Adjust size as needed */
+            height: auto;
+            margin-right: 15px; /* Space between logo and title text */
+        }
+        .question-text {
+            font-size: 1.25rem; /* Tailwind text-xl */
+            font-weight: 600; /* Tailwind font-semibold */
+            margin-bottom: 1.5rem;
+            color: #334155; /* Tailwind slate-700 */
+        }
+        .options-container button {
+            display: block;
+            width: 100%;
+            padding: 1rem 1.5rem; /* Tailwind py-4 px-6 */
+            margin-bottom: 0.75rem; /* Tailwind mb-3 */
+            border-radius: 0.5rem; /* Tailwind rounded-lg */
+            background-color: #e0f2fe; /* Tailwind sky-100 */
+            color: #0ea5e9; /* Tailwind sky-600 */
+            font-weight: 500; /* Tailwind font-medium */
+            text-align: left;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .options-container button:hover {
+            background-color: #bae6fd; /* Tailwind sky-200 */
+            transform: translateY(-2px);
+        }
+        .options-container button.selected {
+            border-color: #0ea5e9; /* Tailwind sky-500 */
+            background-color: #0ea5e9; /* Tailwind sky-500 */
+            color: white;
+        }
+        .options-container button.correct {
+            background-color: #16a34a; /* Tailwind green-600 */
+            color: white;
+            border-color: #16a34a;
+        }
+        .options-container button.incorrect {
+            background-color: #dc2626; /* Tailwind red-600 */
+            color: white;
+            border-color: #dc2626;
+        }
+        .feedback {
+            margin-top: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+        }
+        .feedback.correct-feedback {
+            background-color: #dcfce7; /* Tailwind green-100 */
+            color: #15803d; /* Tailwind green-700 */
+        }
+        .feedback.incorrect-feedback {
+            background-color: #fee2e2; /* Tailwind red-100 */
+            color: #b91c1c; /* Tailwind red-700 */
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+        .navigation-buttons button {
+            padding: 0.75rem 1.5rem; /* Tailwind py-3 px-6 */
+            border-radius: 0.5rem; /* Tailwind rounded-lg */
+            font-weight: 600; /* Tailwind font-semibold */
+            cursor: pointer;
+            transition: background-color 0.2s ease, opacity 0.2s ease;
+        }
+        #next-button {
+            background-color: #0ea5e9; /* Tailwind sky-500 */
+            color: white;
+        }
+        #next-button:hover:not(:disabled) {
+            background-color: #0284c7; /* Tailwind sky-600 */
+        }
+        #next-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        #start-quiz-button, #restart-quiz-button {
+            background-color: #0ea5e9; /* Tailwind sky-500 */
+            color: white;
+            width: 100%;
+            padding: 1rem 1.5rem;
+            margin-top: 1.5rem;
+            font-size: 1.125rem;
+        }
+        #start-quiz-button:hover, #restart-quiz-button:hover {
+            background-color: #0284c7; /* Tailwind sky-600 */
+        }
+        .score-container {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        .score-container h2 {
+            font-size: 2rem; /* Tailwind text-2xl */
+            color: #0ea5e9; /* Tailwind sky-500 */
+            margin-bottom: 1rem;
+        }
+        .score-container p {
+            font-size: 1.5rem; /* Tailwind text-xl */
+            font-weight: 600;
+        }
+        .quiz-intro {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.125rem; /* Tailwind text-lg */
+            color: #475569; /* Tailwind slate-600 */
+        }
+        #quiz-section {
+            display: none; /* Hidden by default */
+        }
+        #score-section {
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1 id="quiz-title">
+            <img src="https://previews.dropbox.com/p/thumb/ACp1HeWRQLbylaA3jrhVNrsJghgJVp1hv0pwUx19FJccMgqaDnFqK7mf5o6WjRKRnEWOYq6UwD404OkDOysw17w5V_vOjQ9KIMA1OoZo_6lkYuIyDr2mXkae-YWsfop8I7WJ1AiNueLxFQ46HAub1hOcxEmFoFhxDs-XKBH8RXBWutdsR-_3jyTRZQ0YwHWe8CvAC1NDuCcA_spBxIPzIXI91Aw7_T0nZYSMp3CmvV7l0OeV3vuQaHnfauyCZ2xtzrXKy_BRKUN9s7FQsd1blojF1KovQXWpQstCVqNZAacoYg/p.png" alt="Quiz Logo" class="quiz-logo">
+            Coastal Resilience Knowledge Check
+        </h1>
+
+        <div id="intro-section">
+            <p class="quiz-intro">Test your knowledge about Maryland's coastal challenges, impacts, and solutions. Let's see how much you've learned!</p>
+            <button id="start-quiz-button" class="rounded-lg font-semibold hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-75">Start Quiz</button>
+        </div>
+
+        <div id="quiz-section">
+            <p class="question-text" id="question-text"></p>
+            <div class="options-container" id="options-container">
+                </div>
+            <div id="feedback" class="feedback hidden"></div>
+            <div class="navigation-buttons">
+                <button id="next-button" disabled class="rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-75">Next Question</button>
+            </div>
+        </div>
+
+        <div id="score-section">
+            <div class="score-container">
+                <h2>Quiz Complete!</h2>
+                <p>You scored <span id="final-score">0</span> out of <span id="total-questions">0</span> questions correct.</p>
+            </div>
+            <button id="restart-quiz-button" class="rounded-lg font-semibold hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-75">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizQuestions = [
+            {
+                question: "Approximately how much has sea level risen in the Chesapeake Bay over the past century?",
+                options: ["About 6 inches", "About 1 foot", "About 2 feet", "About 3 feet"],
+                answer: "About 1 foot"
+            },
+            {
+                question: "What is a significant impact of saltwater intrusion on Maryland's Eastern Shore?",
+                options: ["Increased fish populations", "Damage to agricultural fields", "Cleaner drinking water", "Higher property values"],
+                answer: "Damage to agricultural fields"
+            },
+            {
+                question: "Which of these is NOT a primary source of nutrient pollution in the Chesapeake Bay?",
+                options: ["Agricultural runoff", "Wastewater treatment plants", "Urban stormwater", "Ocean currents"],
+                answer: "Ocean currents"
+            },
+            {
+                question: "What does 'Nuisance Flooding' primarily refer to?",
+                options: ["Flooding caused by major hurricanes", "Minor, disruptive flooding from high tides", "Flooding from overflowing rivers", "Flooding only in industrial areas"],
+                answer: "Minor, disruptive flooding from high tides"
+            },
+            {
+                question: "Which Maryland county is specifically mentioned as being highly vulnerable due to marsh loss and saltwater intrusion, with Blackwater National Wildlife Refuge located there?",
+                options: ["Anne Arundel County", "Baltimore County", "Dorchester County", "Prince George's County"],
+                answer: "Dorchester County"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+
+        const introSection = document.getElementById('intro-section');
+        const quizSection = document.getElementById('quiz-section');
+        const scoreSection = document.getElementById('score-section');
+        const startQuizButton = document.getElementById('start-quiz-button');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextButton = document.getElementById('next-button');
+        const feedbackElement = document.getElementById('feedback');
+        const finalScoreSpan = document.getElementById('final-score');
+        const totalQuestionsSpan = document.getElementById('total-questions');
+        const restartQuizButton = document.getElementById('restart-quiz-button');
+
+        startQuizButton.addEventListener('click', startQuiz);
+        nextButton.addEventListener('click', loadNextQuestion);
+        restartQuizButton.addEventListener('click', restartQuiz);
+
+        function startQuiz() {
+            introSection.style.display = 'none';
+            quizSection.style.display = 'block';
+            currentQuestionIndex = 0;
+            score = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            resetQuestionState();
+            const questionData = quizQuestions[currentQuestionIndex];
+            questionText.textContent = questionData.question;
+
+            questionData.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option-button');
+                button.addEventListener('click', () => selectOption(button, option, questionData.answer));
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function resetQuestionState() {
+            optionsContainer.innerHTML = '';
+            feedbackElement.classList.add('hidden');
+            feedbackElement.classList.remove('correct-feedback', 'incorrect-feedback');
+            nextButton.disabled = true;
+            selectedOption = null;
+        }
+
+        function selectOption(button, option, correctAnswer) {
+            // Disable all options after one is selected
+            Array.from(optionsContainer.children).forEach(btn => btn.disabled = true);
+
+            selectedOption = option;
+            nextButton.disabled = false; // Enable next button once an option is chosen
+
+            if (option === correctAnswer) {
+                button.classList.add('correct');
+                feedbackElement.textContent = "Correct!";
+                feedbackElement.classList.add('correct-feedback');
+                score++;
+            } else {
+                button.classList.add('incorrect');
+                feedbackElement.textContent = `Incorrect. The correct answer was: ${correctAnswer}`;
+                feedbackElement.classList.add('incorrect-feedback');
+                // Highlight correct answer if incorrect option is chosen
+                Array.from(optionsContainer.children).forEach(btn => {
+                    if (btn.textContent === correctAnswer) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+            feedbackElement.classList.remove('hidden');
+        }
+
+        function loadNextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizQuestions.length) {
+                loadQuestion();
+            } else {
+                showScore();
+            }
+        }
+
+        function showScore() {
+            quizSection.style.display = 'none';
+            scoreSection.style.display = 'block';
+            finalScoreSpan.textContent = score;
+            totalQuestionsSpan.textContent = quizQuestions.length;
+        }
+
+        function restartQuiz() {
+            scoreSection.style.display = 'none';
+            introSection.style.display = 'block'; // Go back to intro to allow restart
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedOption = null;
+            resetQuestionState(); // Ensure state is reset for next start
+        }
+
+        // Initial load of the intro state
+        introSection.style.display = 'block';
+
+    </script>
+</body>
+</html>
